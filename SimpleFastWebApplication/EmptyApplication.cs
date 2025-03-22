@@ -81,8 +81,8 @@ public class EmptyApplication : IHttpConnection
     }
     
     private State _state;
-    public PipeReader Reader { get; set; }
-    public PipeWriter Writer { get; set; }
+    public PipeReader Reader { get; set; } = null!;
+    public PipeWriter Writer { get; set; } = null!;
     
     
     private HttpParser<ParsingAdapter> Parser { get; } = new();
@@ -236,16 +236,14 @@ public class EmptyApplication : IHttpConnection
     
     private readonly struct WriterAdapter(PipeWriter writer) : IBufferWriter<byte>
     {
-        private readonly PipeWriter Writer = writer;
-
         public void Advance(int count)
-            => Writer.Advance(count);
+            => writer.Advance(count);
 
         public Memory<byte> GetMemory(int sizeHint = 0)
-            => Writer.GetMemory(sizeHint);
+            => writer.GetMemory(sizeHint);
 
         public Span<byte> GetSpan(int sizeHint = 0)
-            => Writer.GetSpan(sizeHint);
+            => writer.GetSpan(sizeHint);
     }
     
     private readonly struct ParsingAdapter(EmptyApplication requestHandler) : IHttpRequestLineHandler, IHttpHeadersHandler

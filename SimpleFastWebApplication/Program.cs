@@ -14,7 +14,7 @@ var host = Host.CreateDefaultBuilder(args)
             });
         });
         
-        builder.Configure(app => { });
+        builder.Configure(_ => { });
         builder.UseSockets(options =>
         {
             options.WaitForDataBeforeAllocatingBuffer = false;

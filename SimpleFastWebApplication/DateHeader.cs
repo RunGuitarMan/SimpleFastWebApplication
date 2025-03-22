@@ -10,7 +10,7 @@ internal static class DateHeader
     private const int SuffixLength = 2;
     private const int SuffixIndex = DateTimeRLength + PrefixLength;
     
-    private static readonly Timer STimer = new((s) => {
+    private static readonly Timer STimer = new(_ => {
         SetDateValues(DateTimeOffset.UtcNow);
     }, null, 1000, 1000);
     
