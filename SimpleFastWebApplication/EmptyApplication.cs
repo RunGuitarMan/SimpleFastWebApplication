@@ -171,16 +171,18 @@ public class EmptyApplication : IHttpConnection
         return true;
     }
     
-    private async Task HandleRequestAsync(ReadOnlySequence<byte> buffer)
+    private Task HandleRequestAsync(ReadOnlySequence<byte> buffer)
     {
         if (_state == State.Body)
         {
-            await ProcessRequestAsync();
-            
+            var task = ProcessRequestAsync();
             _state = State.StartLine;
+            Reader.AdvanceTo(buffer.Start, buffer.End);
+            return task;
         }
-        
+
         Reader.AdvanceTo(buffer.Start, buffer.End);
+        return Task.CompletedTask;
     }
     
     private void ParseHttpRequest(ref SequenceReader<byte> reader, ref ReadOnlySequence<byte> buffer, bool isCompleted)
