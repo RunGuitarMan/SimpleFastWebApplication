@@ -25,8 +25,6 @@ public class EmptyApplication : IHttpConnection
     private static void Default(ref BufferWriter<WriterAdapter> writer)
     {
         writer.Write(DefaultPreamble);
-
-        // Date header
         writer.Write(DateHeader.HeaderBytes);
     }
     
@@ -55,16 +53,15 @@ public class EmptyApplication : IHttpConnection
     }
 
     private RequestType _requestType;
-    private int _queries;
 
     public void OnStartLine(HttpVersionAndMethod versionAndMethod, TargetOffsetPathLength targetPath, Span<byte> startLine)
     {
         _requestType = versionAndMethod.Method == HttpMethod.Get
-            ? GetRequestType(startLine.Slice(targetPath.Offset, targetPath.Length), ref _queries)
+            ? GetRequestType(startLine.Slice(targetPath.Offset, targetPath.Length))
             : RequestType.NotRecognized;
     }
 
-    private static RequestType GetRequestType(ReadOnlySpan<byte> path, ref int queries)
+    private static RequestType GetRequestType(ReadOnlySpan<byte> path)
     {
         if (path.Length == 10 && path.SequenceEqual(Paths.Plaintext))
         {

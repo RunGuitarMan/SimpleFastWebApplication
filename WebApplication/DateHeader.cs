@@ -35,8 +35,8 @@ internal static class DateHeader
         SetDateValues(DateTimeOffset.UtcNow);
         SyncDateTimer();
     }
-    
-    public static void SyncDateTimer()
+
+    private static void SyncDateTimer()
     {
         STimer.Change(1000, 1000);
     }
