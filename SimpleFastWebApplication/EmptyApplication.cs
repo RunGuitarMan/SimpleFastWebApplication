@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
 using HttpMethod = Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.HttpMethod;
 
-namespace WebApplication;
+namespace SimpleFastWebApplication;
 
 public class EmptyApplication : IHttpConnection
 {

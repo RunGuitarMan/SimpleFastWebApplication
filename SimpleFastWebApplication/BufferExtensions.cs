@@ -2,7 +2,7 @@ using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace WebApplication;
+namespace SimpleFastWebApplication;
 
 public static class BufferExtensions
 {

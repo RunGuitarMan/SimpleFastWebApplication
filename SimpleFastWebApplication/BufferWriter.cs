@@ -1,7 +1,7 @@
 using System.Buffers;
 using System.Runtime.CompilerServices;
 
-namespace WebApplication;
+namespace SimpleFastWebApplication;
 
 public ref struct BufferWriter<T> where T : IBufferWriter<byte>
 {

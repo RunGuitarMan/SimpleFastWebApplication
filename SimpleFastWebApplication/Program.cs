@@ -1,5 +1,5 @@
 using System.Net;
-using WebApplication;
+using SimpleFastWebApplication;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureWebHost(web =>

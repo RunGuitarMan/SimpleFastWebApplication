@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication", "WebApplication\WebApplication.csproj", "{A1958F87-477B-49A1-AA4C-75E8FCDB0839}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleFastWebApplication", "SimpleFastWebApplication\SimpleFastWebApplication.csproj", "{A1958F87-477B-49A1-AA4C-75E8FCDB0839}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

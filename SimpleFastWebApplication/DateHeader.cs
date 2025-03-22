@@ -1,7 +1,7 @@
 using System.Buffers.Text;
 using System.Diagnostics;
 
-namespace WebApplication;
+namespace SimpleFastWebApplication;
 
 internal static class DateHeader
 {

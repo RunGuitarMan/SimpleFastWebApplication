@@ -2,7 +2,7 @@ using System.IO.Pipelines;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http;
 
-namespace WebApplication;
+namespace SimpleFastWebApplication;
 
 public sealed class HttpApplication<TConnection> where TConnection : IHttpConnection, new()
 {
