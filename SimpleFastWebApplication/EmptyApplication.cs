@@ -24,12 +24,6 @@ public class EmptyApplication : IHttpConnection
         return Task.CompletedTask;
     }
     
-    private static void Default(ref BufferWriter<WriterAdapter> writer)
-    {
-        writer.Write(DefaultPreamble);
-        writer.Write(DateHeader.HeaderBytes);
-    }
-    
     private static ReadOnlySpan<byte> PlainTextBody => "Hello, World!"u8;
     
     private static ReadOnlySpan<byte> PlaintextPreamble =>
@@ -146,7 +140,7 @@ public class EmptyApplication : IHttpConnection
         
         while (true)
         {
-            ParseHttpRequest(ref reader, ref buffer, isCompleted);
+            ParseHttpRequest(ref reader, isCompleted);
 
             if (_state == State.Body)
             {
@@ -185,7 +179,7 @@ public class EmptyApplication : IHttpConnection
         return Task.CompletedTask;
     }
     
-    private void ParseHttpRequest(ref SequenceReader<byte> reader, ref ReadOnlySequence<byte> buffer, bool isCompleted)
+    private void ParseHttpRequest(ref SequenceReader<byte> reader, bool isCompleted)
     {
         var state = _state;
         
