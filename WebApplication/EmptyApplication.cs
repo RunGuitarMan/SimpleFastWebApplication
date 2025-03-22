@@ -9,15 +9,17 @@ namespace WebApplication;
 public class EmptyApplication : IHttpConnection
 {
     private static ReadOnlySpan<byte> DefaultPreamble =>
-        "HTTP/1.1 200 OK\r\n"u8 +
+        "HTTP/1.1 404 Not Found\r\n"u8 +
         "Server: K\r\n"u8 +
         "Content-Type: text/plain\r\n"u8 +
-        "Content-Length: 0"u8;
+        "Content-Length: 0\r\n"u8 +
+        "Connection: close\r\n\r\n"u8;
     
     private static Task Default(PipeWriter pipeWriter)
     {
         var writer = GetWriter(pipeWriter, sizeHint: DefaultPreamble.Length + DateHeader.HeaderBytes.Length);
-        Default(ref writer);
+        writer.Write(DefaultPreamble);
+        writer.Write(DateHeader.HeaderBytes);
         writer.Commit();
         return Task.CompletedTask;
     }
@@ -39,11 +41,7 @@ public class EmptyApplication : IHttpConnection
     private static void PlainText(ref BufferWriter<WriterAdapter> writer)
     {
         writer.Write(PlaintextPreamble);
-
-        // Date header
         writer.Write(DateHeader.HeaderBytes);
-
-        // Body
         writer.Write(PlainTextBody);
     }
 
@@ -58,7 +56,7 @@ public class EmptyApplication : IHttpConnection
     {
         _requestType = versionAndMethod.Method == HttpMethod.Get
             ? GetRequestType(startLine.Slice(targetPath.Offset, targetPath.Length))
-            : RequestType.NotRecognized;
+            : RequestType.NotFound;
     }
 
     private static RequestType GetRequestType(ReadOnlySpan<byte> path)
@@ -67,8 +65,7 @@ public class EmptyApplication : IHttpConnection
         {
             return RequestType.PlainText;
         }
-
-        return RequestType.NotRecognized;
+        return RequestType.NotFound;
     }
 
     private bool ProcessRequest(ref BufferWriter<WriterAdapter> writer)
@@ -92,7 +89,7 @@ public class EmptyApplication : IHttpConnection
 
     private enum RequestType
     {
-        NotRecognized,
+        NotFound,
         PlainText
     }
     
