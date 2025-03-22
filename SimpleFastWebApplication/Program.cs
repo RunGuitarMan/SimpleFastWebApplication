@@ -1,18 +1,24 @@
 using System.Net;
 using SimpleFastWebApplication;
 
+DateHeader.SyncDateTimer();
+
 var host = Host.CreateDefaultBuilder(args)
-    .ConfigureWebHost(web =>
+    .ConfigureWebHost(builder =>
     {
-        web.UseKestrel(options =>
+        builder.UseKestrel(options =>
         {
-            options.Listen(new IPEndPoint(IPAddress.Loopback, 8080), builder =>
+            options.Listen(new IPEndPoint(IPAddress.Loopback, 8080), listenOptions =>
             {
-                builder.Use(_ => new HttpApplication<EmptyApplication>().ExecuteAsync);
+                listenOptions.Use(_ => new HttpApplication<EmptyApplication>().ExecuteAsync);
             });
         });
         
-        web.Configure(app => { });
+        builder.Configure(app => { });
+        builder.UseSockets(options =>
+        {
+            options.WaitForDataBeforeAllocatingBuffer = false;
+        });
     })
     .Build();
 

@@ -36,7 +36,7 @@ internal static class DateHeader
         SyncDateTimer();
     }
 
-    private static void SyncDateTimer()
+    public static void SyncDateTimer()
     {
         STimer.Change(1000, 1000);
     }
