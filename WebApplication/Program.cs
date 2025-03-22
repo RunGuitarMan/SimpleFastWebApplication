@@ -1,6 +1,19 @@
-var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
+using System.Net;
+using WebApplication;
 
-app.MapGet("/", () => "Hello World!");
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureWebHost(web =>
+    {
+        web.UseKestrel(options =>
+        {
+            options.Listen(new IPEndPoint(IPAddress.Loopback, 8080), builder =>
+            {
+                builder.Use(_ => new HttpApplication<EmptyApplication>().ExecuteAsync);
+            });
+        });
+        
+        web.Configure(app => { });
+    })
+    .Build();
 
-app.Run();
+await host.RunAsync();
