@@ -8,6 +8,8 @@ namespace SimpleFastWebApplication;
 
 public class EmptyApplication : IHttpConnection
 {
+    private bool _shouldClose;
+
     private static ReadOnlySpan<byte> DefaultPreamble =>
         "HTTP/1.1 404 Not Found\r\n"u8 +
         "Server: K\r\n"u8 +
@@ -15,13 +17,10 @@ public class EmptyApplication : IHttpConnection
         "Content-Length: 0\r\n"u8 +
         "Connection: close\r\n\r\n"u8;
     
-    private static Task Default(PipeWriter pipeWriter)
+    private static void Default(ref BufferWriter<WriterAdapter> writer)
     {
-        var writer = GetWriter(pipeWriter, sizeHint: DefaultPreamble.Length + DateHeader.HeaderBytes.Length);
         writer.Write(DefaultPreamble);
         writer.Write(DateHeader.HeaderBytes);
-        writer.Commit();
-        return Task.CompletedTask;
     }
     
     private static ReadOnlySpan<byte> PlainTextBody => "Hello, World!"u8;
@@ -55,11 +54,9 @@ public class EmptyApplication : IHttpConnection
 
     private static RequestType GetRequestType(ReadOnlySpan<byte> path)
     {
-        if (path.Length == 10 && path.SequenceEqual(Paths.Plaintext))
-        {
-            return RequestType.PlainText;
-        }
-        return RequestType.NotFound;
+        return path.SequenceEqual(Paths.Plaintext)
+            ? RequestType.PlainText
+            : RequestType.NotFound;
     }
 
     private bool ProcessRequest(ref BufferWriter<WriterAdapter> writer)
@@ -76,10 +73,6 @@ public class EmptyApplication : IHttpConnection
         return true;
     }
 
-    private Task ProcessRequestAsync() => _requestType switch
-    {
-        _ => Default(Writer)
-    };
 
     private enum RequestType
     {
@@ -128,8 +121,13 @@ public class EmptyApplication : IHttpConnection
             {
                 await HandleRequestAsync(buffer);
             }
-            
+
             await Writer.FlushAsync();
+
+            if (_shouldClose || isCompleted)
+            {
+                return;
+            }
         }
     }
     
@@ -169,10 +167,12 @@ public class EmptyApplication : IHttpConnection
     {
         if (_state == State.Body)
         {
-            var task = ProcessRequestAsync();
+            var writer = GetWriter(Writer, sizeHint: 160 * 16);
+            Default(ref writer);
+            writer.Commit();
             _state = State.StartLine;
             Reader.AdvanceTo(buffer.Start, buffer.End);
-            return task;
+            return Task.CompletedTask;
         }
 
         Reader.AdvanceTo(buffer.Start, buffer.End);
@@ -211,7 +211,15 @@ public class EmptyApplication : IHttpConnection
     
     public void OnStaticIndexedHeader(int index) { }
     public void OnStaticIndexedHeader(int index, ReadOnlySpan<byte> value) { }
-    public void OnHeader(ReadOnlySpan<byte> name, ReadOnlySpan<byte> value) { }
+    
+    public void OnHeader(ReadOnlySpan<byte> name, ReadOnlySpan<byte> value)
+    {
+        if (name.SequenceEqual("Connection"u8) && value.SequenceEqual("close"u8))
+        {
+            _shouldClose = true;
+        }
+    }
+
     public void OnHeadersComplete(bool endStream) { }
     private static void ThrowUnexpectedEndOfData() { throw new InvalidOperationException("Unexpected end of data!"); }
     
